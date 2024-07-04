@@ -1,0 +1,92 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="utf-8">
+  <link   th:href="@{/css/bootstrap.min.css}"
+          href="../css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+  <div class="container">
+    <a class="navbar-brand" href="#">주식 시스템</a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+            aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarNav">
+      <ul class="navbar-nav">
+        <li class="nav-item">
+          <a class="nav-link" href="#">홈</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="#">주식 목록</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="#" th:href="@{/stocklist/stockRank}">투자 포트폴리오</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="#">고객 센터</a>
+        </li>
+      </ul>
+      <ul class="navbar-nav ms-auto">
+        <li class="nav-item">
+          <span class="nav-link" th:if="${loginMember}" th:text="|ID: ${loginMember.loginId}|"></span>
+        </li>
+        <li class="nav-item">
+          <span class="nav-link" th:if="${loginMember}" th:text="|사용자명: ${loginMember.name}|"></span>
+        </li>
+      </ul>
+    </div>
+  </div>
+</nav>
+
+
+<div class="container" style="max-width: 800px">
+  <div class="py-5 text-center">
+    <h2>주식 목록</h2> </div>
+  <div class="row">
+    <div class="col">
+      <button class="btn btn-primary float-end"
+              onclick="location.href='addForm.html'"
+              th:onclick="|location.href='@{/stockitem}'|"
+              type="button">종목 상세</button>
+    </div>
+  </div>
+
+  <hr class="my-4">
+  <span style="font-weight:bold" th:text="|전체종목 수량 : ${count}|"> </span>
+  <hr class="my-4">
+
+  <div>
+    <table class="table">
+      <thead>
+      <tr>
+        <th>종목코드</th>
+        <th>종목명</th>
+        <th>시장구분</th>
+        <th>시가</th>
+        <th>종가</th>
+        <th>저가</th>
+        <th>고가</th>
+      </tr>
+      </thead>
+      <tbody>
+      <tr th:each="items : ${itemList}">
+
+        <td><a th:text="${items.srtnCd}">종목코드</a></td>
+        <td><a href="item.html" th:href="@{/stocklist/{srtnCd}(srtnCd=${items.srtnCd})}" th:text="${items.itmsNm}">종목명</a></td>
+        <td><a th:text="${items.mrktCtg}">시장구분</a></td>
+        <td><a th:text="${items.mkp}">시가</a></td>
+        <td><a th:text="${items.clpr}">종가</a></td>
+        <td><a th:text="${items.lopr}">저가</a></td>
+        <td><a th:text="${items.hipr}">고가</a></td>
+
+      </tr>
+      </tbody>
+    </table>
+  </div>
+</div> <!-- /container -->
+
+</body>
+</html>
