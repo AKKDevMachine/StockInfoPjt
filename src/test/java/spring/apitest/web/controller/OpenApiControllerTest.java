@@ -13,6 +13,12 @@ import static org.junit.jupiter.api.Assertions.*;
 class OpenApiControllerTest {
     @Autowired
     OpenApiService openApiService;
+    @Autowired OpenApiController openApiController;
+
+    @Test
+    void test() throws IOException {
+        openApiController.getStockRank();
+    }
 
     @Test
     void getApiSchedule() throws IOException {

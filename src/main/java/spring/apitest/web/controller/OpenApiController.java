@@ -6,14 +6,22 @@ import lombok.extern.slf4j.Slf4j;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
+import org.springframework.data.redis.core.ListOperations;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.SetOperations;
+import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.SessionAttribute;
 import spring.apitest.Repository.H2StockItemRepository;
 import spring.apitest.Repository.MySqlStockNameRepository;
 import spring.apitest.domain.item.Item;
+import spring.apitest.domain.item.StockName;
 import spring.apitest.domain.member.Member;
 import spring.apitest.service.GetStockService;
 
@@ -33,6 +41,7 @@ public class OpenApiController {
     private final H2StockItemRepository h2StockItemRepository;
     private final MySqlStockNameRepository mySqlStockNameRepository;
     private final GetStockService getStockService;
+    private final RedisTemplate<String, String> redisTemplate;
 
     private ObjectMapper objectMapper = new ObjectMapper();
 
@@ -155,7 +164,45 @@ public class OpenApiController {
     }
 
     @GetMapping("/stocklist/stockRank")
-    public String getStockRank(){
+    public String getStockRank(Model model) throws IOException {
+
+        SetOperations<String, String> ops = redisTemplate.opsForSet();
+        MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
+
+        String TOP_10_URL = "https://finance.naver.com/sise/lastsearch2.naver";
+
+        Document doc = Jsoup.connect(TOP_10_URL).get();
+        //log.info("{}", doc);
+        Elements rows = doc.select(".type_5>tbody");
+        //log.info("========={}===========",rows);
+
+        for (Element row : rows) {
+            for(int i= 3; i<16; i++) {
+                if(i<8 || i>10) {
+                    String name = row.select("tr:nth-child(" + i + ")>td>a").text();
+                    log.info("{}", name);
+
+                    String currentPrice = row.select("tr:nth-child(" + i + ")>td:nth-child(4)").text();
+                    log.info("{}", currentPrice);
+                    map.add(name, currentPrice);
+                    String upPrice = row.select("tr:nth-child(" + i + ")>td:nth-child(5)>span").text();
+                    log.info("{}", upPrice);
+                    map.add(name, upPrice);
+                    String upRate = row.select("tr:nth-child(" + i + ")>td:nth-child(6)>span").text();
+                    log.info("{}", upRate);
+                    map.add(name, upRate);
+                }
+            }
+        }
+
+        for (String key : map.keySet()) {
+            List<String> values = map.get(key);
+            for (String value : values) {
+                log.info("Stock: {} - Value: {}", key, value);
+            }
+        }
+
+        model.addAttribute("stockMap", map);
 
         return "stockRank";
     }

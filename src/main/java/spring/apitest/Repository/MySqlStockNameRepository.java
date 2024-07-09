@@ -8,10 +8,12 @@ import org.springframework.jdbc.core.namedparam.BeanPropertySqlParameterSource;
 import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Repository;
+import spring.apitest.domain.item.Item;
 import spring.apitest.domain.item.ItemRepository;
 import spring.apitest.domain.item.StockName;
 
 import javax.sql.DataSource;
+import java.util.List;
 
 @Slf4j
 @Repository
@@ -70,5 +72,12 @@ public class MySqlStockNameRepository implements StockNameRepository{
         String sql = "select count(srtnCd) from stockname";
         String count = template.queryForObject(sql, String.class);
         return count;
+    }
+
+    @Override
+    public List<StockName> findAll() {
+        String sql = "select * from stockname";
+        List<StockName> stockNames = template.query(sql, BeanPropertyRowMapper.newInstance(StockName.class));
+        return stockNames;
     }
 }
